@@ -20,33 +20,37 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // Create roles
-        $superAdmin = Role::create(['name' => 'super-admin']);
-        $admin = Role::create(['name' => 'admin']);
-        $user = Role::create(['name' => 'user']);
+        $superAdmin = Role::firstOrCreate(['name' => 'super-admin']);
+        $admin = Role::firstOrCreate(['name' => 'admin']);
+        $user = Role::firstOrCreate(['name' => 'user']);
 
         // Assign permissions to roles
-        $superAdmin->givePermissionTo(Permission::all());
+        $superAdmin->syncPermissions(Permission::all());
         
-        $admin->givePermissionTo([
+        $admin->syncPermissions([
             'view-tenants', 'create-tenants', 'edit-tenants', 'delete-tenants',
             'view-customers', 'create-customers', 'edit-customers', 'delete-customers',
             'view-items', 'create-items', 'edit-items', 'delete-items',
         ]);
         
-        $user->givePermissionTo([
+        $user->syncPermissions([
             'view-customers', 'view-items'
         ]);
 
-        // Create default super admin user
-        $superAdminUser = User::create([
+        // Create default super admin user if not exists
+        $superAdminUser = User::firstOrCreate([
+            'email' => 'superadmin@example.com'
+        ], [
             'name' => 'Super Admin',
-            'email' => 'superadmin@example.com',
             'password' => bcrypt('password')
         ]);
-        $superAdminUser->assignRole('super-admin');
+        
+        if (!$superAdminUser->hasRole('super-admin')) {
+            $superAdminUser->assignRole('super-admin');
+        }
     }
 }

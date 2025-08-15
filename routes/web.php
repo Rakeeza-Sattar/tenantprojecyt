@@ -1,26 +1,26 @@
 <?php
-// routes/web.php
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ItemController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
-Auth::routes();
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Route::middleware(['auth'])->group(function () {
-    // Dashboard
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/home', [DashboardController::class, 'index'])->name('home');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Tenants Routes
     Route::resource('tenants', TenantController::class);
     
-    // Customers Routes  
+    // Customers Routes
     Route::resource('customers', CustomerController::class);
     
     // Items Routes
     Route::resource('items', ItemController::class);
 });
+
+require __DIR__.'/auth.php';
